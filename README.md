@@ -188,8 +188,3 @@ pytest
 ruff check .
 ```
 
-## Citation and licence
-
-Add the final paper citation and `CITATION.cff` before publication. No
-open-source licence has yet been selected; a licence must be chosen by the
-copyright holder before reuse rights are granted.
