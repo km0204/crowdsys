@@ -6,7 +6,6 @@ import pandas as pd
 from .analysis import DESIGN_COLUMNS
 from .surrogate import SurrogateSet
 
-
 LOWER = np.array([0.0, 0.0, 1.0, 0.0, 0.0])
 UPPER = np.array([1.0, 1.0, 20.0, 0.70, 1.0])
 
@@ -79,6 +78,17 @@ def _rank_and_crowding(objectives: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     return ranks, crowding
 
 
+def _tournament_winner(
+    first: int,
+    second: int,
+    ranks: np.ndarray,
+    crowding: np.ndarray,
+) -> int:
+    if ranks[first] != ranks[second]:
+        return first if ranks[first] < ranks[second] else second
+    return first if crowding[first] >= crowding[second] else second
+
+
 def _select(
     population: np.ndarray,
     objectives: np.ndarray,
@@ -119,14 +129,12 @@ def nsga2(
         offspring: list[np.ndarray] = []
         while len(offspring) < population_size:
             contestants = rng.randint(0, population_size, size=4)
-
-            def winner(first: int, second: int) -> int:
-                if ranks[first] != ranks[second]:
-                    return first if ranks[first] < ranks[second] else second
-                return first if crowding[first] >= crowding[second] else second
-
-            parent_a = population[winner(contestants[0], contestants[1])]
-            parent_b = population[winner(contestants[2], contestants[3])]
+            parent_a = population[
+                _tournament_winner(contestants[0], contestants[1], ranks, crowding)
+            ]
+            parent_b = population[
+                _tournament_winner(contestants[2], contestants[3], ranks, crowding)
+            ]
             mix = rng.random(len(DESIGN_COLUMNS))
             child_a = mix * parent_a + (1.0 - mix) * parent_b
             child_b = mix * parent_b + (1.0 - mix) * parent_a

@@ -31,7 +31,7 @@ class PolynomialRegressor:
                 terms.append(values[:, first] * values[:, second])
         return np.column_stack(terms)
 
-    def fit(self, values: np.ndarray, target: np.ndarray) -> "PolynomialRegressor":
+    def fit(self, values: np.ndarray, target: np.ndarray) -> PolynomialRegressor:
         expanded = self.expand(values)
         penalty = self.ridge * np.eye(expanded.shape[1])
         penalty[0, 0] = 0.0

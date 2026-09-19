@@ -14,7 +14,7 @@ class StationConfig:
     time_bias_minutes: float = 0.0
 
     @classmethod
-    def from_dict(cls, values: dict[str, Any]) -> "StationConfig":
+    def from_dict(cls, values: dict[str, Any]) -> StationConfig:
         return cls(
             capacity_per_minute=int(values.get("capacity_per_minute", values.get("cap"))),
             walk_minutes=float(values.get("walk_minutes", values.get("walk"))),
@@ -163,7 +163,7 @@ class ModelConfig:
             if station.share_hint <= 0:
                 raise ValueError(f"station {name!r} has non-positive share_hint")
 
-    def with_walk_time_overrides(self, overrides: dict[str, float]) -> "ModelConfig":
+    def with_walk_time_overrides(self, overrides: dict[str, float]) -> ModelConfig:
         unknown = sorted(set(overrides) - set(self.stations))
         if unknown:
             raise ValueError(f"unknown station names in walk-time overrides: {unknown}")
@@ -182,7 +182,7 @@ class ModelConfig:
         event_enabled: bool | None = None,
         shuttle_awareness: float | None = None,
         event_awareness: float | None = None,
-    ) -> "ModelConfig":
+    ) -> ModelConfig:
         shuttle = replace(
             self.shuttle,
             enabled=self.shuttle.enabled if shuttle_enabled is None else shuttle_enabled,
@@ -210,7 +210,7 @@ class ModelConfig:
         return updated
 
     @classmethod
-    def from_dict(cls, values: dict[str, Any]) -> "ModelConfig":
+    def from_dict(cls, values: dict[str, Any]) -> ModelConfig:
         arrivals_values = dict(values.get("arrivals", {}))
         if "plat_start" in arrivals_values:
             arrivals_values["plateau_start"] = arrivals_values.pop("plat_start")
