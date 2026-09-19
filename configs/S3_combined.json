@@ -1,0 +1,31 @@
+{
+  "shuttle": {
+    "enabled": true,
+    "headway_minutes": 6,
+    "vehicle_capacity": 60,
+    "fleet_size": 15,
+    "boarding_rate_per_minute": 120,
+    "in_vehicle_minutes": 15.0
+  },
+  "event": {
+    "enabled": true,
+    "candidate_rate": 0.35,
+    "target_join_rate": 0.5,
+    "window_start": -150,
+    "window_end": -60,
+    "reward": 0.6,
+    "dwell_mean_minutes": 20.0,
+    "dwell_sd_minutes": 7.0
+  },
+  "information": {
+    "enabled": true,
+    "shuttle_awareness_rate": 0.6,
+    "event_awareness_rate": 0.6
+  },
+  "spatial": {
+    "input_directory": "params",
+    "log_positions": true,
+    "walk_congestion_alpha": 1.0,
+    "default_path_capacity": 200
+  }
+}

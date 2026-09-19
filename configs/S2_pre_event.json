@@ -1,0 +1,17 @@
+{
+  "event": {
+    "enabled": true,
+    "candidate_rate": 0.35,
+    "target_join_rate": 0.5,
+    "window_start": -150,
+    "window_end": -60,
+    "reward": 0.6,
+    "dwell_mean_minutes": 20.0,
+    "dwell_sd_minutes": 7.0
+  },
+  "information": {
+    "enabled": true,
+    "shuttle_awareness_rate": 0.0,
+    "event_awareness_rate": 0.6
+  }
+}

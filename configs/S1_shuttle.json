@@ -1,0 +1,17 @@
+{
+  "shuttle": {
+    "enabled": true,
+    "headway_minutes": 6,
+    "vehicle_capacity": 60,
+    "fleet_size": 15,
+    "boarding_rate_per_minute": 120,
+    "in_vehicle_minutes": 15.0,
+    "dropoff_walk_minutes": 0.0,
+    "extra_time_penalty_minutes": 0.0
+  },
+  "information": {
+    "enabled": true,
+    "shuttle_awareness_rate": 0.6,
+    "event_awareness_rate": 0.0
+  }
+}

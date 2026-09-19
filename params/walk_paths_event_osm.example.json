@@ -1,0 +1,12 @@
+{
+  "station_to_zone": {
+    "KokuritsuKyogijo_Oedo": {
+      "Zone_CE": {"coords": [[139.0, 35.0], [139.0006, 35.0005]]}
+    }
+  },
+  "zone_to_gate": {
+    "Zone_CE": {
+      "Gate_A": {"coords": [[139.0006, 35.0005], [139.001, 35.001]]}
+    }
+  }
+}

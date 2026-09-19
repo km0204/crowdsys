@@ -1,0 +1,96 @@
+{
+  "sim_start_minute": -180,
+  "sim_end_minute": 60,
+  "n_agents": 15000,
+  "capacity_scale": 0.3,
+  "rail_access_minutes": 2.0,
+  "prior_alpha": 1.0,
+  "epsilon_noise": 0.5,
+  "default_time_sensitivity": 1.0,
+  "default_crowding_sensitivity": 0.6,
+  "arrivals": {
+    "left_start": -140,
+    "left_end": -60,
+    "plateau_start": -60,
+    "plateau_end": 0,
+    "late_max": 30,
+    "decay_rate": 0.18
+  },
+  "stochastic": {
+    "walk_multiplier_mean": 1.0,
+    "walk_multiplier_sd": 0.15,
+    "walk_multiplier_min": 0.7,
+    "walk_multiplier_max": 1.4,
+    "queue_wait_jitter_min": 0.0,
+    "queue_wait_jitter_max": 1.0
+  },
+  "shuttle": {
+    "enabled": false,
+    "headway_minutes": 6,
+    "vehicle_capacity": 60,
+    "fleet_size": 15,
+    "boarding_rate_per_minute": 120,
+    "in_vehicle_minutes": 15.0,
+    "dropoff_walk_minutes": 0.0,
+    "extra_time_penalty_minutes": 0.0
+  },
+  "event": {
+    "enabled": false,
+    "candidate_rate": 0.35,
+    "target_join_rate": 0.5,
+    "window_start": -150,
+    "window_end": -60,
+    "reward": 0.6,
+    "dwell_mean_minutes": 20.0,
+    "dwell_sd_minutes": 7.0
+  },
+  "information": {
+    "enabled": false,
+    "shuttle_awareness_rate": 0.0,
+    "event_awareness_rate": 0.0
+  },
+  "spatial": {
+    "input_directory": null,
+    "log_positions": false,
+    "walk_congestion_alpha": 1.0,
+    "default_path_capacity": 200
+  },
+  "stations": {
+    "KokuritsuKyogijo_Oedo": {
+      "capacity_per_minute": 60,
+      "walk_minutes": 8.0,
+      "share_hint": 0.4,
+      "time_bias_minutes": 1.0
+    },
+    "Sendagaya_JR": {
+      "capacity_per_minute": 60,
+      "walk_minutes": 13.0,
+      "share_hint": 0.3,
+      "time_bias_minutes": -1.0
+    },
+    "Shinanomachi_JR": {
+      "capacity_per_minute": 60,
+      "walk_minutes": 11.0,
+      "share_hint": 0.15,
+      "time_bias_minutes": 0.0
+    },
+    "Gaienmae_Ginza": {
+      "capacity_per_minute": 60,
+      "walk_minutes": 11.0,
+      "share_hint": 0.1,
+      "time_bias_minutes": -1.0
+    },
+    "AoyamaItchome_OedoHanzomonGinza": {
+      "capacity_per_minute": 60,
+      "walk_minutes": 20.0,
+      "share_hint": 0.05,
+      "time_bias_minutes": -1.0
+    },
+    "Kitasando_Fukutoshin": {
+      "capacity_per_minute": 60,
+      "walk_minutes": 16.0,
+      "share_hint": 0.02,
+      "time_bias_minutes": -1.0
+    }
+  }
+}

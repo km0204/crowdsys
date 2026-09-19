@@ -1,0 +1,8 @@
+{
+  "station_to_zone": {
+    "KokuritsuKyogijo_Oedo": {"Zone_CE": 5.0}
+  },
+  "zone_to_gate": {
+    "Zone_CE": {"Gate_A": 4.0}
+  }
+}
