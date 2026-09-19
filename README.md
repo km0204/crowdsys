@@ -193,12 +193,3 @@ ruff check .
 Add the final paper citation and `CITATION.cff` before publication. No
 open-source licence has yet been selected; a licence must be chosen by the
 copyright holder before reuse rights are granted.
-
-## 日本語概要
-
-本リポジトリは、付録として提供されたスタジアム入場モデルを公開用に整理し、
-基準シナリオ、シャトルバス、プレイベント、情報認知、施策の組合せ、OSM経路、
-密度図を実行できる形にしたものです。さらに、付録にはなかった容量条件別の施策
-相互作用、代理モデル、NSGA-II、Pareto解、感度分析、頑健性分析を独立した分析
-モジュールとして追加しています。OSM実データは同梱しておらず、未提供の場合は
-徒歩時間による安全な代替処理を使用します。
