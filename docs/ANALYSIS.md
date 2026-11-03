@@ -5,7 +5,10 @@
 For every demand/capacity regime, the simulation evaluates four portfolios
 with common random seeds: none, shuttle only, pre-event only, and joint.
 The command defaults to mean queue waiting time and can also analyse the
-composite congestion score, peak queue, or pre-kick-off arrival share.
+appendix queue workload proxy, composite congestion score, peak queue, or
+pre-kick-off arrival share. The appendix proxy is the mean across stations of
+the time average of queue length divided by per-minute station capacity. It is
+not an individual waiting-time observation.
 
 Let `C` be the congestion score, where lower is better. Separate and joint
 benefits are `B_S = C_none - C_spatial`, `B_T = C_none - C_temporal`, and

@@ -371,6 +371,8 @@ def simulate(config: ModelConfig, seed: int = 42) -> SimulationResult:
     peak_facility_queue_to_capacity = 0.0
     peak_facility_name = ""
     peak_facility_minute = config.sim_start_minute
+    station_queue_to_capacity_sum = {name: 0.0 for name in config.stations}
+    station_queue_observations = {name: 0 for name in config.stations}
 
     def record_arrival(
         fan: Fan,
@@ -541,6 +543,9 @@ def simulate(config: ModelConfig, seed: int = 42) -> SimulationResult:
             name: len(queue) / max(_effective_capacity(config, name), 1)
             for name, queue in rail_queues.items()
         }
+        for name in config.stations:
+            station_queue_to_capacity_sum[name] += facility_loads[name]
+            station_queue_observations[name] += 1
         if config.shuttle.enabled:
             facility_loads["shuttle"] = len(shuttle_queue) / max(shuttle_capacity, 1)
         if facility_loads:
@@ -613,6 +618,14 @@ def simulate(config: ModelConfig, seed: int = 42) -> SimulationResult:
     )
     arrival_concentration_hhi = float(np.sum(arrival_shares**2))
     peak_arrivals_to_capacity = float(arrival_counts.max() / max(total_service_capacity, 1))
+    station_mean_queue_to_capacity = {
+        name: station_queue_to_capacity_sum[name]
+        / max(station_queue_observations[name], 1)
+        for name in config.stations
+    }
+    mean_station_queue_to_capacity = float(
+        np.mean(list(station_mean_queue_to_capacity.values()))
+    )
 
     metadata: dict[str, int | float | str | bool] = {
         "seed": seed,
@@ -643,6 +656,7 @@ def simulate(config: ModelConfig, seed: int = 42) -> SimulationResult:
         "peak_facility_minute": peak_facility_minute,
         "arrival_concentration_hhi": arrival_concentration_hhi,
         "peak_arrivals_to_capacity": peak_arrivals_to_capacity,
+        "mean_station_queue_to_capacity": mean_station_queue_to_capacity,
         "pre_kickoff_arrival_share": pre_kickoff / config.n_agents,
         "intervention_cost": float(intervention_cost),
         "spatial_paths_loaded": spatial.paths_available,

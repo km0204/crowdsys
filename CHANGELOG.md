@@ -7,6 +7,8 @@
 - Added facility backlog, arrival pressure, and arrival concentration diagnostics.
 - Added Pareto verification metrics for retained nondominance, hypervolume, and degradation.
 - Added scenario-specific reoptimisation and fixed-policy congestion and cost comparisons.
+- Added a manuscript reference configuration and an explicit appendix queue workload KPI.
+- Documented the failed numerical reproduction and the missing original research inputs.
 
 ## 0.2.0
 

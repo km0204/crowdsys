@@ -30,6 +30,9 @@ def result_kpis(result: SimulationResult) -> dict[str, float]:
         ),
         "arrival_concentration_hhi": float(metadata["arrival_concentration_hhi"]),
         "peak_arrivals_to_capacity": float(metadata["peak_arrivals_to_capacity"]),
+        "mean_station_queue_to_capacity": float(
+            metadata["mean_station_queue_to_capacity"]
+        ),
         "congestion_score": mean_wait + 20.0 * peak_queue / n_agents,
     }
 

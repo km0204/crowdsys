@@ -178,6 +178,8 @@ The results from the public reconstructed model are summarized in
 [`docs/ADDITIONAL_EXPERIMENTS.md`](docs/ADDITIONAL_EXPERIMENTS.md). They are
 validation results for this implementation and are not substitutes for final
 manuscript experiments conducted with a different model specification.
+The attempted numerical reconciliation with the manuscript is documented in
+[`docs/MANUSCRIPT_REPRODUCTION.md`](docs/MANUSCRIPT_REPRODUCTION.md).
 
 ## Sensitivity and robustness
 

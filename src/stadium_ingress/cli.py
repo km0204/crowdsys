@@ -75,6 +75,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--interaction-metric",
         choices=[
             "mean_queue_wait_minutes",
+            "mean_station_queue_to_capacity",
             "congestion_score",
             "peak_total_queue",
             "pre_kickoff_arrival_share",
