@@ -1,0 +1,15 @@
+{
+  "station_to_zone": {
+    "KokuritsuKyogijo_Oedo": {"Zone_CE": 10.0, "Zone_EG": 10.0},
+    "Sendagaya_JR": {"Zone_CE": 16.0, "Zone_EG": 7.0},
+    "Shinanomachi_JR": {"Zone_CE": 14.0, "Zone_EG": 7.0},
+    "Gaienmae_Ginza": {"Zone_CE": 6.0, "Zone_EG": 14.0},
+    "AoyamaItchome_OedoHanzomonGinza": {"Zone_CE": 14.0, "Zone_EG": 23.0},
+    "Kitasando_Fukutoshin": {"Zone_CE": 20.0, "Zone_EG": 15.0},
+    "Shuttle_Dropoff": {"Zone_CE": 4.0, "Zone_EG": 6.0}
+  },
+  "zone_to_gate": {
+    "Zone_CE": {"Gate_A": 4.0},
+    "Zone_EG": {"Gate_A": 4.0}
+  }
+}

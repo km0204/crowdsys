@@ -180,6 +180,9 @@ validation results for this implementation and are not substitutes for final
 manuscript experiments conducted with a different model specification.
 The attempted numerical reconciliation with the manuscript is documented in
 [`docs/MANUSCRIPT_REPRODUCTION.md`](docs/MANUSCRIPT_REPRODUCTION.md).
+The matched reference condition audit using explicitly estimated spatial inputs
+is reported in
+[`docs/REFERENCE_CALIBRATION_AUDIT.md`](docs/REFERENCE_CALIBRATION_AUDIT.md).
 
 ## Sensitivity and robustness
 

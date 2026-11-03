@@ -16,6 +16,11 @@ Do not rename them to the production filenames for research runs. Generate
 the production files from a documented OSM snapshot and record its date,
 projection, routing profile, and licence attribution.
 
+The `reference_network_estimates/` directory is used only for the reference
+calibration audit. Its coordinates and route times are explicit estimates and
+must not be represented as the missing original OSM inputs. See
+`docs/REFERENCE_CALIBRATION_AUDIT.md` for the audit protocol and results.
+
 Coordinates can be longitude/latitude pairs or projected metre coordinates.
 All files must use the same coordinate reference system. Longitude/latitude
 route lengths are calculated with a local equirectangular approximation;

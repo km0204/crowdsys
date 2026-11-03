@@ -1,0 +1,38 @@
+{
+  "n_agents": 30000,
+  "capacity_scale": 0.68,
+  "shuttle": {
+    "enabled": false,
+    "headway_minutes": 10,
+    "vehicle_capacity": 80,
+    "fleet_size": 6,
+    "boarding_rate_per_minute": 48,
+    "in_vehicle_minutes": 18.0,
+    "dropoff_walk_minutes": 3.0,
+    "extra_time_penalty_minutes": 0.0
+  },
+  "event": {
+    "enabled": false,
+    "candidate_rate": 0.70,
+    "target_join_rate": 0.80,
+    "window_start": -150,
+    "window_end": -60,
+    "early_penalty": 0.10,
+    "late_penalty": 0.60,
+    "reward": 0.60,
+    "join_temperature": 0.35,
+    "dwell_mean_minutes": 20.0,
+    "dwell_sd_minutes": 7.0
+  },
+  "information": {
+    "enabled": false,
+    "shuttle_awareness_rate": 0.50,
+    "event_awareness_rate": 0.50
+  },
+  "spatial": {
+    "input_directory": "params/reference_network_estimates",
+    "log_positions": false,
+    "walk_congestion_alpha": 1.0,
+    "default_path_capacity": 100000
+  }
+}
