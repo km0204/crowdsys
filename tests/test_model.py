@@ -6,6 +6,7 @@ from dataclasses import replace
 import pandas as pd
 
 from stadium_ingress import aggregate_replications, default_config, simulate
+from stadium_ingress.model import intervention_resource_index
 
 
 def small_config():
@@ -13,6 +14,18 @@ def small_config():
 
 
 class ModelTests(unittest.TestCase):
+    def test_resource_index_is_bounded_and_zero_without_interventions(self) -> None:
+        base = default_config()
+        self.assertEqual(intervention_resource_index(base), 0.0)
+        policy = base.with_policy(
+            shuttle_enabled=True,
+            event_enabled=True,
+            shuttle_awareness=1.0,
+            event_awareness=1.0,
+        )
+        self.assertGreaterEqual(intervention_resource_index(policy), 0.0)
+        self.assertLessEqual(intervention_resource_index(policy), 100.0)
+
     def test_simulation_is_deterministic_for_a_fixed_seed(self) -> None:
         first = simulate(small_config(), seed=7)
         second = simulate(small_config(), seed=7)

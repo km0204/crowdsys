@@ -1,10 +1,10 @@
 # Stadium Ingress Intervention Portfolio Simulation
 
-Reproducible agent-based simulation and analysis code for stadium ingress under
-capacity constraints. The repository contains a cleaned implementation of the
-appendix model supplied by the study author, plus clearly separated analysis
-modules for policy interaction, surrogate modelling, NSGA-II optimisation,
-Pareto analysis, sensitivity analysis, and robustness analysis.
+Reproducible agent based simulation and analysis code for stadium ingress under
+capacity constraints. The repository contains the complete model specification,
+matched interaction inference, XGBoost and quadratic surrogates, NSGA II search,
+frontier verification, fixed budget comparison, and scenario reoptimisation
+used for the reported computational experiments.
 
 Associated study:
 
@@ -27,10 +27,9 @@ Associated study:
 | Dependency-free NSGA-II and Pareto solutions | Implemented | New release analysis module |
 | One-at-a-time sensitivity and stochastic robustness | Implemented | New release analysis module |
 
-The repository does not contain a validated OSM snapshot. Without the five OSM
-JSON inputs, walking is simulated by station-level duration and spatial maps are
-not produced. Example coordinate files document the schema only and must not be
-treated as research data.
+The reference experiment uses the documented coordinate and route time inputs
+in `params/reference_network_estimates`. These files are model inputs and are
+not represented as a validated OSM snapshot or as observed individual traces.
 
 ## Installation
 
@@ -108,11 +107,11 @@ using facility backlog, peak arrival pressure, and arrival concentration. See
 The optional `--refine-inconclusive` stage assigns additional matched seeds only
 to cells whose initial interval contains zero.
 
-## Surrogate-assisted NSGA-II and Pareto solutions
+## Surrogate assisted NSGA II and Pareto solutions
 
 This command generates a stratified experimental design, runs the simulation,
-fits two surrogate objectives, runs NSGA-II, and exports the estimated Pareto
-set:
+fits the congestion surrogate, computes the resource index exactly, runs NSGA
+II, and exports the estimated Pareto set:
 
 ```bash
 stadium-ingress optimise \
@@ -174,15 +173,11 @@ The direct comparator is the nondominated subset of those shared ABS design
 evaluations. It is a fixed-budget direct screening baseline, not a global direct
 simulation optimiser.
 
-The results from the public reconstructed model are summarized in
-[`docs/ADDITIONAL_EXPERIMENTS.md`](docs/ADDITIONAL_EXPERIMENTS.md). They are
-validation results for this implementation and are not substitutes for final
-manuscript experiments conducted with a different model specification.
-The attempted numerical reconciliation with the manuscript is documented in
-[`docs/MANUSCRIPT_REPRODUCTION.md`](docs/MANUSCRIPT_REPRODUCTION.md).
-The matched reference condition audit using explicitly estimated spatial inputs
-is reported in
-[`docs/REFERENCE_CALIBRATION_AUDIT.md`](docs/REFERENCE_CALIBRATION_AUDIT.md).
+The final experimental protocol, numerical results, seed allocation, and output
+files are summarized in
+[`docs/MANUSCRIPT_RESULTS.md`](docs/MANUSCRIPT_RESULTS.md). Earlier audit files
+remain in `docs/` to preserve the development history and distinguish the final
+specification from preliminary reconciliation attempts.
 
 ## Sensitivity and robustness
 

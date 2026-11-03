@@ -6,7 +6,12 @@ from dataclasses import replace
 import numpy as np
 import pandas as pd
 
-from stadium_ingress.analysis import capacity_interaction_analysis, run_design, sample_designs
+from stadium_ingress.analysis import (
+    DESIGN_COLUMNS,
+    capacity_interaction_analysis,
+    run_design,
+    sample_designs,
+)
 from stadium_ingress.config import default_config
 from stadium_ingress.optimisation import nsga2
 from stadium_ingress.surrogate import fit_surrogates
@@ -18,6 +23,18 @@ from stadium_ingress.validation import (
 
 
 class AnalysisTests(unittest.TestCase):
+    def test_design_uses_seven_reported_policy_variables(self) -> None:
+        designs = sample_designs(20, seed=8)
+        self.assertEqual(list(designs.columns), DESIGN_COLUMNS)
+        self.assertEqual(len(DESIGN_COLUMNS), 7)
+        self.assertTrue(designs["shuttle_headway_minutes"].between(6, 15).all())
+        self.assertTrue(designs["fleet_size"].between(3, 9).all())
+        self.assertTrue(designs["shuttle_vehicle_capacity"].between(60, 100).all())
+        self.assertTrue(designs["event_target_join_rate"].between(0.30, 0.80).all())
+        self.assertTrue(designs["event_dwell_mean_minutes"].between(10, 30).all())
+        self.assertTrue(designs["shuttle_awareness"].between(0.25, 1.00).all())
+        self.assertTrue(designs["event_awareness"].between(0.25, 1.00).all())
+
     def test_factorial_interaction_has_all_four_scores(self) -> None:
         config = replace(default_config(), n_agents=100)
         frame = capacity_interaction_analysis(config, [1.0], [0.3], [4])

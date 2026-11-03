@@ -343,6 +343,45 @@ def _route_and_duration(
     return None, 0.0
 
 
+def intervention_resource_index(config: ModelConfig) -> float:
+    """Return the equally weighted, zero to 100 operational resource index."""
+    shuttle_component = 0.0
+    if config.shuttle.enabled:
+        shuttle_intensity = (
+            config.shuttle.fleet_size
+            * config.shuttle.vehicle_capacity
+            / max(config.shuttle.headway_minutes, 1)
+        )
+        shuttle_component = float(
+            np.clip((shuttle_intensity - 12.0) / (150.0 - 12.0), 0.0, 1.0)
+        )
+
+    activity_component = 0.0
+    if config.event.enabled:
+        activity_intensity = (
+            config.event.target_join_rate * config.event.dwell_mean_minutes
+        )
+        activity_component = float(
+            np.clip((activity_intensity - 3.0) / (24.0 - 3.0), 0.0, 1.0)
+        )
+
+    information_component = 0.0
+    if config.information.enabled:
+        active_awareness = []
+        if config.shuttle.enabled:
+            active_awareness.append(config.information.shuttle_awareness_rate)
+        if config.event.enabled:
+            active_awareness.append(config.information.event_awareness_rate)
+        mean_awareness = float(np.mean(active_awareness)) if active_awareness else 0.25
+        information_component = float(
+            np.clip((mean_awareness - 0.25) / 0.75, 0.0, 1.0)
+        )
+
+    return 100.0 / 3.0 * (
+        shuttle_component + activity_component + information_component
+    )
+
+
 def simulate(config: ModelConfig, seed: int = 42) -> SimulationResult:
     """Run one ingress replication including optional shuttle, event, and OSM paths."""
     config.validate()
@@ -592,22 +631,7 @@ def simulate(config: ModelConfig, seed: int = 42) -> SimulationResult:
 
     waits = arrivals["queue_wait_minutes"] if not arrivals.empty else pd.Series([0.0])
     pre_kickoff = int((arrivals["arrival_minute"] <= 0).sum()) if not arrivals.empty else 0
-    simulation_hours = (config.sim_end_minute - config.sim_start_minute + 1) / 60.0
-    intervention_cost = 0.0
-    if config.shuttle.enabled:
-        intervention_cost += (
-            config.shuttle.fleet_size
-            * config.shuttle.cost_per_vehicle_hour
-            * simulation_hours
-        )
-    if config.event.enabled:
-        intervention_cost += config.event.operating_cost
-    if config.information.enabled:
-        reach = max(
-            config.information.shuttle_awareness_rate,
-            config.information.event_awareness_rate,
-        )
-        intervention_cost += config.n_agents * reach * config.information.cost_per_person_reached
+    intervention_cost = intervention_resource_index(config)
 
     total_service_capacity = sum(
         _effective_capacity(config, name) for name in config.stations

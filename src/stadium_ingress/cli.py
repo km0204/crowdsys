@@ -469,11 +469,13 @@ def _scenario_regret(args: argparse.Namespace) -> None:
                 "verification_replications": float(args.verification_replications),
             }
             for column in (
+                "shuttle_headway_minutes",
+                "fleet_size",
+                "shuttle_vehicle_capacity",
+                "event_target_join_rate",
+                "event_dwell_mean_minutes",
                 "shuttle_awareness",
                 "event_awareness",
-                "fleet_size",
-                "event_candidate_rate",
-                "event_target_join_rate",
             ):
                 row[f"fixed_{column}"] = float(fixed_solution[column])
                 row[f"reoptimised_{column}"] = float(scenario_solution[column])

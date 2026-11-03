@@ -78,7 +78,7 @@ def _xgboost_regressor(seed: int):
 
 def fit_surrogates(
     data: pd.DataFrame,
-    targets: tuple[str, ...] = ("congestion_score", "intervention_cost"),
+    targets: tuple[str, ...] = ("congestion_score",),
     backend: str = "auto",
     seed: int = 123,
 ) -> SurrogateSet:

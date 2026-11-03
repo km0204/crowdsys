@@ -288,11 +288,13 @@ def interaction_mechanism_diagnostics(summary: pd.DataFrame) -> pd.DataFrame:
 
 
 DESIGN_COLUMNS = [
+    "shuttle_headway_minutes",
+    "fleet_size",
+    "shuttle_vehicle_capacity",
+    "event_target_join_rate",
+    "event_dwell_mean_minutes",
     "shuttle_awareness",
     "event_awareness",
-    "fleet_size",
-    "event_candidate_rate",
-    "event_target_join_rate",
 ]
 
 
@@ -306,22 +308,30 @@ def sample_designs(n_samples: int, seed: int = 123) -> pd.DataFrame:
         unit[:, column] = (rng.permutation(n_samples) + rng.random(n_samples)) / n_samples
     return pd.DataFrame(
         {
-            "shuttle_awareness": unit[:, 0],
-            "event_awareness": unit[:, 1],
-            "fleet_size": np.rint(1 + unit[:, 2] * 19).astype(int),
-            "event_candidate_rate": unit[:, 3] * 0.70,
-            "event_target_join_rate": unit[:, 4],
+            "shuttle_headway_minutes": np.rint(6 + unit[:, 0] * 9).astype(int),
+            "fleet_size": np.rint(3 + unit[:, 1] * 6).astype(int),
+            "shuttle_vehicle_capacity": np.rint(60 + unit[:, 2] * 40).astype(int),
+            "event_target_join_rate": 0.30 + unit[:, 3] * 0.50,
+            "event_dwell_mean_minutes": np.rint(10 + unit[:, 4] * 20).astype(int),
+            "shuttle_awareness": 0.25 + unit[:, 5] * 0.75,
+            "event_awareness": 0.25 + unit[:, 6] * 0.75,
         }
     )
 
 
 def config_from_design(base: ModelConfig, row: pd.Series | dict[str, float]) -> ModelConfig:
-    shuttle = replace(base.shuttle, enabled=True, fleet_size=int(round(row["fleet_size"])))
+    shuttle = replace(
+        base.shuttle,
+        enabled=True,
+        headway_minutes=int(round(row["shuttle_headway_minutes"])),
+        fleet_size=int(round(row["fleet_size"])),
+        vehicle_capacity=int(round(row["shuttle_vehicle_capacity"])),
+    )
     event = replace(
         base.event,
         enabled=True,
-        candidate_rate=float(row["event_candidate_rate"]),
         target_join_rate=float(row["event_target_join_rate"]),
+        dwell_mean_minutes=float(row["event_dwell_mean_minutes"]),
     )
     information = replace(
         base.information,

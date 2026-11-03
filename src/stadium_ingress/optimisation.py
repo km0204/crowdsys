@@ -6,14 +6,43 @@ import pandas as pd
 from .analysis import DESIGN_COLUMNS
 from .surrogate import SurrogateSet
 
-LOWER = np.array([0.0, 0.0, 1.0, 0.0, 0.0])
-UPPER = np.array([1.0, 1.0, 20.0, 0.70, 1.0])
+LOWER = np.array([6.0, 3.0, 60.0, 0.30, 10.0, 0.25, 0.25])
+UPPER = np.array([15.0, 9.0, 100.0, 0.80, 30.0, 1.00, 1.00])
 
 
 def _decode(population: np.ndarray) -> pd.DataFrame:
     decoded = LOWER + np.clip(population, 0.0, 1.0) * (UPPER - LOWER)
-    decoded[:, 2] = np.rint(decoded[:, 2])
+    decoded[:, [0, 1, 2, 4]] = np.rint(decoded[:, [0, 1, 2, 4]])
     return pd.DataFrame(decoded, columns=DESIGN_COLUMNS)
+
+
+def resource_index_from_designs(designs: pd.DataFrame) -> np.ndarray:
+    """Compute the exact zero to 100 resource index for joint portfolios."""
+    shuttle_intensity = (
+        designs["fleet_size"].to_numpy(dtype=float)
+        * designs["shuttle_vehicle_capacity"].to_numpy(dtype=float)
+        / designs["shuttle_headway_minutes"].to_numpy(dtype=float)
+    )
+    shuttle = np.clip((shuttle_intensity - 12.0) / (150.0 - 12.0), 0.0, 1.0)
+    activity_intensity = (
+        designs["event_target_join_rate"].to_numpy(dtype=float)
+        * designs["event_dwell_mean_minutes"].to_numpy(dtype=float)
+    )
+    activity = np.clip((activity_intensity - 3.0) / (24.0 - 3.0), 0.0, 1.0)
+    information = np.clip(
+        (
+            (
+                designs["shuttle_awareness"].to_numpy(dtype=float)
+                + designs["event_awareness"].to_numpy(dtype=float)
+            )
+            / 2.0
+            - 0.25
+        )
+        / 0.75,
+        0.0,
+        1.0,
+    )
+    return 100.0 / 3.0 * (shuttle + activity + information)
 
 
 def _dominates(left: np.ndarray, right: np.ndarray) -> bool:
@@ -120,8 +149,11 @@ def nsga2(
     population = rng.random((population_size, len(DESIGN_COLUMNS)))
 
     def evaluate(values: np.ndarray) -> np.ndarray:
-        predicted = surrogate.predict(_decode(values))
-        return predicted[["congestion_score", "intervention_cost"]].to_numpy(dtype=float)
+        designs = _decode(values)
+        predicted = surrogate.predict(designs)
+        return np.column_stack(
+            [predicted["congestion_score"].to_numpy(dtype=float), resource_index_from_designs(designs)]
+        )
 
     objectives = evaluate(population)
     for _ in range(generations):
