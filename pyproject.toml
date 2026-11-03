@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stadium-ingress-simulation"
-version = "0.2.0"
+version = "0.3.0"
 description = "Stadium ingress simulation, intervention analysis, and surrogate-assisted optimisation"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -20,6 +20,7 @@ dev = [
   "ruff>=0.6",
 ]
 analysis = [
+  "scikit-learn>=1.4",
   "xgboost>=2.0",
 ]
 

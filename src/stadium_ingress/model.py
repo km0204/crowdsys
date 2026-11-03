@@ -368,6 +368,9 @@ def simulate(config: ModelConfig, seed: int = 42) -> SimulationResult:
     position_rows: list[tuple[int, int, float, float, str]] = []
     arrivals_by_minute: Counter[int] = Counter()
     shuttle_boarded = 0
+    peak_facility_queue_to_capacity = 0.0
+    peak_facility_name = ""
+    peak_facility_minute = config.sim_start_minute
 
     def record_arrival(
         fan: Fan,
@@ -534,6 +537,19 @@ def simulate(config: ModelConfig, seed: int = 42) -> SimulationResult:
                     travel,
                 )
         walkers = remaining_walkers
+        facility_loads = {
+            name: len(queue) / max(_effective_capacity(config, name), 1)
+            for name, queue in rail_queues.items()
+        }
+        if config.shuttle.enabled:
+            facility_loads["shuttle"] = len(shuttle_queue) / max(shuttle_capacity, 1)
+        if facility_loads:
+            facility_name = max(facility_loads, key=facility_loads.get)
+            facility_load = float(facility_loads[facility_name])
+            if facility_load > peak_facility_queue_to_capacity:
+                peak_facility_queue_to_capacity = facility_load
+                peak_facility_name = facility_name
+                peak_facility_minute = minute
         rail_queue_length = sum(len(queue) for queue in rail_queues.values())
         queue_rows.append((minute, rail_queue_length, len(shuttle_queue)))
 
@@ -588,6 +604,16 @@ def simulate(config: ModelConfig, seed: int = 42) -> SimulationResult:
         )
         intervention_cost += config.n_agents * reach * config.information.cost_per_person_reached
 
+    total_service_capacity = sum(
+        _effective_capacity(config, name) for name in config.stations
+    ) + (shuttle_capacity if config.shuttle.enabled else 0)
+    arrival_total = int(arrival_counts.sum())
+    arrival_shares = (
+        arrival_counts / arrival_total if arrival_total > 0 else np.zeros_like(arrival_counts)
+    )
+    arrival_concentration_hhi = float(np.sum(arrival_shares**2))
+    peak_arrivals_to_capacity = float(arrival_counts.max() / max(total_service_capacity, 1))
+
     metadata: dict[str, int | float | str | bool] = {
         "seed": seed,
         "n_agents": config.n_agents,
@@ -612,6 +638,11 @@ def simulate(config: ModelConfig, seed: int = 42) -> SimulationResult:
         "mean_queue_wait_minutes": float(waits.mean()),
         "p90_queue_wait_minutes": float(waits.quantile(0.9)),
         "peak_total_queue": int(minute_data["total_queue_length"].max()),
+        "peak_facility_queue_to_capacity": peak_facility_queue_to_capacity,
+        "peak_facility_name": peak_facility_name,
+        "peak_facility_minute": peak_facility_minute,
+        "arrival_concentration_hhi": arrival_concentration_hhi,
+        "peak_arrivals_to_capacity": peak_arrivals_to_capacity,
         "pre_kickoff_arrival_share": pre_kickoff / config.n_agents,
         "intervention_cost": float(intervention_cost),
         "spatial_paths_loaded": spatial.paths_available,

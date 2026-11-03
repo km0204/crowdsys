@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+- Added seed-level matched interaction contrasts and 95% confidence intervals.
+- Added supported complementarity, substitution, and inconclusive classifications.
+- Added facility backlog, arrival pressure, and arrival concentration diagnostics.
+- Added Pareto verification metrics for retained nondominance, hypervolume, and degradation.
+- Added scenario-specific reoptimisation and fixed-policy congestion and cost comparisons.
+
 ## 0.2.0
 
 - Reconstructed shuttle, pre-event, information-awareness, and joint-policy

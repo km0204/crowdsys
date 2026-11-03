@@ -81,7 +81,27 @@ def plot_interaction_heatmap(data: pd.DataFrame, output_path: str | Path) -> Non
     axis.set_yticks(range(len(table.index)), [f"{value:.2f}" for value in table.index])
     axis.set_xlabel("Capacity scale")
     axis.set_ylabel("Demand scale")
-    axis.set_title("Policy interaction (>0 complementarity, <0 substitution)")
+    for row_index, demand_scale in enumerate(table.index):
+        for column_index, capacity_scale in enumerate(table.columns):
+            selected = data[
+                (data["demand_scale"] == demand_scale)
+                & (data["capacity_scale"] == capacity_scale)
+            ].iloc[0]
+            label = {
+                "supported complementarity": "+",
+                "supported substitution": "-",
+                "inconclusive": "?",
+            }.get(str(selected.get("classification", "")), "")
+            axis.text(
+                column_index,
+                row_index,
+                f"{selected['interaction']:.2f}\n{label}",
+                ha="center",
+                va="center",
+                fontsize=8,
+                color="black",
+            )
+    axis.set_title("Matched interaction with 95% interval classification")
     figure.colorbar(image, ax=axis, label="Difference-in-differences")
     figure.tight_layout()
     figure.savefig(output_path, dpi=300, bbox_inches="tight")

@@ -3,10 +3,18 @@ from __future__ import annotations
 import unittest
 from dataclasses import replace
 
+import numpy as np
+import pandas as pd
+
 from stadium_ingress.analysis import capacity_interaction_analysis, run_design, sample_designs
 from stadium_ingress.config import default_config
 from stadium_ingress.optimisation import nsga2
 from stadium_ingress.surrogate import fit_surrogates
+from stadium_ingress.validation import (
+    frontier_verification_metrics,
+    hypervolume_2d,
+    nondominated_mask,
+)
 
 
 class AnalysisTests(unittest.TestCase):
@@ -16,6 +24,8 @@ class AnalysisTests(unittest.TestCase):
         self.assertEqual(len(frame), 1)
         for column in ("baseline_score", "spatial_score", "temporal_score", "joint_score", "interaction"):
             self.assertIn(column, frame.columns)
+        for column in ("interaction_se", "ci95_lower", "ci95_upper", "classification"):
+            self.assertIn(column, frame.columns)
 
     def test_surrogate_and_nsga2_produce_pareto_solutions(self) -> None:
         config = replace(default_config(), n_agents=80)
@@ -24,6 +34,23 @@ class AnalysisTests(unittest.TestCase):
         pareto = nsga2(surrogate, population_size=8, generations=2, seed=5)
         self.assertFalse(pareto.empty)
         self.assertIn("predicted_congestion_score", pareto.columns)
+
+    def test_frontier_metrics_report_retained_nondominance_and_hypervolume(self) -> None:
+        objectives = np.array([[1.0, 4.0], [2.0, 2.0], [3.0, 3.0]])
+        np.testing.assert_array_equal(nondominated_mask(objectives), [True, True, False])
+        self.assertAlmostEqual(hypervolume_2d(objectives, np.array([5.0, 5.0])), 10.0)
+        verification = pd.DataFrame(
+            {
+                "predicted_congestion_score": [1.0, 2.0, 3.0],
+                "predicted_intervention_cost": [4.0, 2.0, 3.0],
+                "simulated_congestion_score": [1.1, 2.1, 3.2],
+                "simulated_intervention_cost": [4.0, 2.0, 3.0],
+            }
+        )
+        detailed, metrics = frontier_verification_metrics(verification)
+        self.assertIn("simulated_nondominated", detailed.columns)
+        self.assertEqual(metrics["retained_nondominated_points"], 2.0)
+        self.assertGreater(metrics["predicted_hypervolume"], 0.0)
 
 
 if __name__ == "__main__":

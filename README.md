@@ -95,12 +95,18 @@ stadium-ingress interaction \
   --demand-scales 0.7,1.0,1.3 \
   --capacity-scales 0.2,0.3,0.4 \
   --replications 10 \
+  --refine-inconclusive 10 \
+  --interaction-metric mean_queue_wait_minutes \
   --output-dir outputs/interaction
 ```
 
-The reported difference-in-differences is positive for complementarity,
-negative for substitution, and close to zero for additive effects. See
-[`docs/ANALYSIS.md`](docs/ANALYSIS.md) for the exact definition.
+The command writes seed-level matched contrasts, 95% confidence intervals, and
+a three-level classification: supported complementarity, supported
+substitution, or inconclusive. It also exports descriptive mechanism diagnostics
+using facility backlog, peak arrival pressure, and arrival concentration. See
+[`docs/ANALYSIS.md`](docs/ANALYSIS.md) for the exact definitions.
+The optional `--refine-inconclusive` stage assigns additional matched seeds only
+to cells whose initial interval contains zero.
 
 ## Surrogate-assisted NSGA-II and Pareto solutions
 
@@ -124,7 +130,54 @@ stadium-ingress optimise \
 Use `--surrogate-backend polynomial` when XGBoost is unavailable. The complete
 Pareto CSV contains surrogate predictions. A spaced subset is automatically
 re-evaluated with independent simulation seeds and written to
-`pareto_verification.csv`; increase the verification settings for final runs.
+`pareto_verification.csv`. The command also reports retained nondominance,
+verified hypervolume, and objective degradation in
+`frontier_verification_metrics.json`; increase the verification settings for
+final runs.
+
+## Scenario-specific reoptimisation and regret
+
+The following command compares the reference balanced compromise with a new
+balanced compromise optimised for each demand and capacity scenario:
+
+```bash
+stadium-ingress scenario-regret \
+  --config configs/baseline.json \
+  --demand-scales 1.1,1.2,1.3 \
+  --capacity-scales 1.0 \
+  --design-samples 60 \
+  --replications 5 \
+  --verification-replications 30 \
+  --output-dir outputs/scenario_regret
+```
+
+`scenario_regret.csv` reports independently simulated congestion differences,
+cost differences, normalized balanced scores, dominance relations, and policy
+settings. Congestion difference alone is not labelled regret because the
+problem is multiobjective.
+
+## Fixed-budget computational benchmark
+
+```bash
+stadium-ingress fixed-budget-benchmark \
+  --config configs/baseline.json \
+  --design-samples 60 \
+  --replications 5 \
+  --surrogate-backends polynomial,xgboost \
+  --verify-solutions 10 \
+  --verification-replications 10 \
+  --output-dir outputs/fixed_budget_benchmark
+```
+
+Both surrogate models use the same simulation design and replication budget.
+The direct comparator is the nondominated subset of those shared ABS design
+evaluations. It is a fixed-budget direct screening baseline, not a global direct
+simulation optimiser.
+
+The results from the public reconstructed model are summarized in
+[`docs/ADDITIONAL_EXPERIMENTS.md`](docs/ADDITIONAL_EXPERIMENTS.md). They are
+validation results for this implementation and are not substitutes for final
+manuscript experiments conducted with a different model specification.
 
 ## Sensitivity and robustness
 
