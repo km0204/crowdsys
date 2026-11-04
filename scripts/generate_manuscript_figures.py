@@ -11,7 +11,7 @@ matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
-from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+from matplotlib.patches import FancyArrowPatch, Rectangle
 
 
 def _save(fig: plt.Figure, path: Path) -> None:
@@ -28,121 +28,228 @@ def _first_existing(*paths: Path) -> Path:
 
 
 def framework_figure(output: Path) -> None:
-    fig, ax = plt.subplots(figsize=(14.5, 4.8))
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    fig, ax = plt.subplots(figsize=(12.4, 5.1))
+    ax.set_xlim(0, 12.4)
+    ax.set_ylim(0, 5.1)
     ax.axis("off")
 
-    stages = [
-        (
-            "1. Policy\ndesign",
-            "Seven policy variables\nDemand and capacity states\nInitial Latin hypercube design",
-        ),
-        (
-            "2. Agent based\nsimulation",
-            "Matched counterfactuals\nSynthetic population choices\n"
-            "Capacity constrained queues\nWaiting and arrival outputs",
-        ),
-        (
-            "3. Interaction and\nsurrogate learning",
-            "Four response ensembles\nInteraction mean and uncertainty\n"
-            "Pareto rank uncertainty\nModel refitting",
-        ),
-        (
-            "4. Portfolio\nsearch",
-            "Boundary and Pareto acquisition\nFixed ABS evaluation budget\n"
-            "Contextual NSGA II search\nExact resource index",
-        ),
-        (
-            "5. Independent\nverification",
-            "Held out boundary grid\nVerified hypervolume\n"
-            "Representative portfolios\nScenario reoptimisation",
-        ),
-    ]
-    x_positions = np.array([0.018, 0.214, 0.410, 0.606, 0.802])
-    width = 0.18
-    colors = ["#e8f1f8", "#eaf5ec", "#f4f0e8", "#f3eaf5", "#eef0f3"]
-    for idx, ((title, body), x, color) in enumerate(
-        zip(stages, x_positions, colors, strict=True)
-    ):
-        box = FancyBboxPatch(
-            (x, 0.27),
-            width,
-            0.62,
-            boxstyle="round,pad=0.012,rounding_size=0.012",
-            linewidth=1.4,
-            edgecolor="#30343b",
-            facecolor=color,
+    navy = "#244b6b"
+    ink = "#20262d"
+    mid = "#6c7780"
+    search_fill = "#f4f7f9"
+    verify_fill = "#f6f4ef"
+
+    ax.text(
+        0.35,
+        4.82,
+        "Sequential design and surrogate search",
+        fontsize=11.5,
+        fontweight="bold",
+        color=ink,
+        va="center",
+    )
+    ax.plot([0.35, 8.85], [4.62, 4.62], color=navy, lw=1.5)
+    ax.text(
+        9.25,
+        4.82,
+        "Independent evaluation",
+        fontsize=11.5,
+        fontweight="bold",
+        color=ink,
+        va="center",
+    )
+    ax.plot([9.25, 12.05], [4.62, 4.62], color=navy, lw=1.5)
+
+    def box(
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        number: str,
+        title: str,
+        body: str,
+        fill: str = search_fill,
+    ) -> None:
+        ax.add_patch(
+            Rectangle(
+                (x, y),
+                width,
+                height,
+                facecolor=fill,
+                edgecolor=ink,
+                linewidth=1.05,
+            )
         )
-        ax.add_patch(box)
         ax.text(
-            x + width / 2,
-            0.79,
-            title,
-            ha="center",
-            va="center",
-            fontsize=11.0,
+            x + 0.14,
+            y + height - 0.18,
+            number,
+            fontsize=9.0,
             fontweight="bold",
-            color="#17202a",
+            color=navy,
+            va="top",
+        )
+        ax.text(
+            x + 0.42,
+            y + height - 0.18,
+            title,
+            fontsize=8.8,
+            fontweight="bold",
+            color=ink,
+            va="top",
         )
         ax.plot(
-            [x + 0.015, x + width - 0.015],
-            [0.705, 0.705],
-            color="#7a828a",
-            lw=0.8,
+            [x + 0.14, x + width - 0.14],
+            [y + height - 0.55, y + height - 0.55],
+            color="#a4abb1",
+            lw=0.65,
         )
         ax.text(
-            x + 0.018,
-            0.655,
+            x + 0.16,
+            y + height - 0.72,
             body,
-            ha="left",
+            fontsize=7.7,
+            color=ink,
             va="top",
-            fontsize=7.8,
-            linespacing=1.5,
-            color="#20262e",
+            linespacing=1.38,
         )
-        if idx < len(stages) - 1:
-            arrow = FancyArrowPatch(
-                (x + width + 0.002, 0.57),
-                (x_positions[idx + 1] - 0.002, 0.57),
-                arrowstyle="-|>",
-                mutation_scale=14,
-                linewidth=1.5,
-                color="#4f5964",
-            )
-            ax.add_patch(arrow)
 
-    band = FancyBboxPatch(
-        (0.12, 0.06),
-        0.76,
-        0.11,
-        boxstyle="round,pad=0.012,rounding_size=0.012",
-        linewidth=1.2,
-        edgecolor="#36566f",
-        facecolor="#f5f9fc",
+    box(
+        0.35,
+        2.62,
+        1.92,
+        1.66,
+        "1",
+        "Initial design",
+        "Policy  $\\mathbf{x}$: seven controls\nState  $\\mathbf{z}=(D,K)$\nLatin hypercube sample",
     )
-    ax.add_patch(band)
+    box(
+        2.58,
+        2.62,
+        1.92,
+        1.66,
+        "2",
+        "Matched ABS",
+        "Common seeds\n$Y_{00},Y_{10},Y_{01},Y_{11}$\nJoint congestion  $G_{11}$",
+    )
+    box(
+        4.81,
+        2.62,
+        1.92,
+        1.66,
+        "3",
+        "Surrogate models",
+        "$\\widehat{Y}_{ab}(\\mathbf{x},\\mathbf{z})$ and $\\widehat{G}_{11}$\n"
+        "$\\overline{\\Gamma}_Y$ and $s_{\\Gamma}$\n"
+        "Nondominance probability $p_{ND}$",
+    )
+    box(
+        7.04,
+        2.62,
+        1.92,
+        1.66,
+        "4",
+        "Sequential sampling",
+        "First batch:  $2A_I+3A_P$\nLater batches:  $A_P$\nRefit until budget is reached",
+    )
+
+    for start, end in ((2.27, 2.58), (4.50, 4.81), (6.73, 7.04)):
+        ax.add_patch(
+            FancyArrowPatch(
+                (start, 3.45),
+                (end, 3.45),
+                arrowstyle="-|>",
+                mutation_scale=11,
+                linewidth=1.15,
+                color=navy,
+            )
+        )
+
+    ax.add_patch(
+        FancyArrowPatch(
+            (8.00, 2.59),
+            (3.54, 2.59),
+            connectionstyle="arc3,rad=0.31",
+            arrowstyle="-|>",
+            mutation_scale=11,
+            linewidth=1.15,
+            color=navy,
+        )
+    )
     ax.text(
-        0.50,
-        0.115,
-        "Closed loop until the fixed ABS budget is exhausted"
-        "   |   independent interaction and frontier verification",
+        5.78,
+        1.98,
+        "new policy and state evaluations",
+        fontsize=7.5,
+        color=navy,
         ha="center",
-        va="center",
-        fontsize=9.4,
-        fontweight="bold",
-        color="#24465f",
     )
-    loop = FancyArrowPatch(
-        (x_positions[3] + width * 0.55, 0.255),
-        (x_positions[1] + width * 0.55, 0.255),
-        connectionstyle="arc3,rad=-0.36",
-        arrowstyle="-|>",
-        mutation_scale=13,
-        linewidth=1.35,
-        color="#36566f",
+
+    box(
+        4.81,
+        0.35,
+        4.15,
+        1.12,
+        "5",
+        "Multiobjective portfolio search",
+        "Mean predicted congestion across three states\n"
+        "Exact resource index $C(\\mathbf{x})$; NSGA II search",
     )
-    ax.add_patch(loop)
+    ax.add_patch(
+        FancyArrowPatch(
+            (8.00, 2.61),
+            (7.78, 1.47),
+            connectionstyle="arc3,rad=-0.18",
+            arrowstyle="-|>",
+            mutation_scale=11,
+            linewidth=1.15,
+            color=navy,
+        )
+    )
+    ax.text(8.22, 1.82, "fixed budget", fontsize=7.3, color=mid, ha="center")
+
+    box(
+        9.25,
+        2.62,
+        2.80,
+        1.66,
+        "A",
+        "Interaction assessment",
+        "Held out demand and capacity grid\nMatched confidence intervals\nRMSE and sign classification",
+        fill=verify_fill,
+    )
+    box(
+        9.25,
+        0.35,
+        2.80,
+        1.66,
+        "B",
+        "Portfolio assessment",
+        "Independent ABS replications\n"
+        "Retained nondominance and hypervolume\n"
+        "Scenario specific reoptimisation",
+        fill=verify_fill,
+    )
+    for start, end in (((6.73, 3.14), (9.25, 3.14)), ((8.96, 0.91), (9.25, 0.91))):
+        ax.add_patch(
+            FancyArrowPatch(
+                start,
+                end,
+                arrowstyle="-|>",
+                mutation_scale=11,
+                linewidth=1.0,
+                linestyle=(0, (4, 3)),
+                color=mid,
+            )
+        )
+    ax.text(
+        10.62,
+        2.29,
+        "Evaluation data are excluded from fitting and acquisition",
+        fontsize=7.3,
+        color=mid,
+        ha="center",
+    )
     _save(fig, output)
 
 
