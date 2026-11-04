@@ -20,6 +20,13 @@ def _save(fig: plt.Figure, path: Path) -> None:
     plt.close(fig)
 
 
+def _first_existing(*paths: Path) -> Path:
+    for path in paths:
+        if path.exists():
+            return path
+    return paths[0]
+
+
 def framework_figure(output: Path) -> None:
     fig, ax = plt.subplots(figsize=(14.5, 4.8))
     ax.set_xlim(0, 1)
@@ -29,25 +36,27 @@ def framework_figure(output: Path) -> None:
     stages = [
         (
             "1. Policy\ndesign",
-            "Seven decision variables\nLatin hypercube design\nDemand and capacity states",
+            "Seven policy variables\nDemand and capacity states\nInitial Latin hypercube design",
         ),
         (
             "2. Agent based\nsimulation",
-            "Synthetic population\nMode and activity choice\n"
+            "Matched counterfactuals\nSynthetic population choices\n"
             "Capacity constrained queues\nWaiting and arrival outputs",
         ),
         (
             "3. Interaction and\nsurrogate learning",
-            "Matched interaction intervals\nXGBoost congestion model\n"
-            "Exact resource index\nIndependent external test",
+            "Four response ensembles\nInteraction mean and uncertainty\n"
+            "Pareto rank uncertainty\nModel refitting",
         ),
         (
             "4. Portfolio\nsearch",
-            "Two objective NSGA II\nFrontier focused refinement\nFixed budget benchmark",
+            "Boundary and Pareto acquisition\nFixed ABS evaluation budget\n"
+            "Contextual NSGA II search\nExact resource index",
         ),
         (
             "5. Independent\nverification",
-            "Twenty policy verification\nRepresentative portfolios\nScenario reoptimisation",
+            "Held out boundary grid\nVerified hypervolume\n"
+            "Representative portfolios\nScenario reoptimisation",
         ),
     ]
     x_positions = np.array([0.018, 0.214, 0.410, 0.606, 0.802])
@@ -116,14 +125,24 @@ def framework_figure(output: Path) -> None:
     ax.text(
         0.50,
         0.115,
-        "Evidence boundaries: predictive accuracy versus optimisation quality"
-        "   |   robustness versus optimality",
+        "Closed loop until the fixed ABS budget is exhausted"
+        "   |   independent interaction and frontier verification",
         ha="center",
         va="center",
         fontsize=9.4,
         fontweight="bold",
         color="#24465f",
     )
+    loop = FancyArrowPatch(
+        (x_positions[3] + width * 0.55, 0.255),
+        (x_positions[1] + width * 0.55, 0.255),
+        connectionstyle="arc3,rad=-0.36",
+        arrowstyle="-|>",
+        mutation_scale=13,
+        linewidth=1.35,
+        color="#36566f",
+    )
+    ax.add_patch(loop)
     _save(fig, output)
 
 
@@ -350,6 +369,78 @@ def temporal_profile_figure(summary_path: Path, output: Path) -> None:
     _save(fig, output)
 
 
+def adaptive_benchmark_figure(
+    learning_path: Path,
+    summary_path: Path,
+    output: Path,
+) -> None:
+    learning = pd.read_csv(learning_path)
+    summary = pd.read_csv(summary_path).set_index("method")
+    labels = {
+        "offline": "Offline design",
+        "pareto_adaptive": "Pareto adaptive",
+        "staged_adaptive": "Staged interaction aware",
+    }
+    colors = {
+        "offline": "#68737d",
+        "pareto_adaptive": "#d07a2d",
+        "staged_adaptive": "#2d7c72",
+    }
+    fig, axes = plt.subplots(1, 2, figsize=(10.8, 4.3))
+    for method in labels:
+        frame = learning.loc[learning["method"] == method]
+        grouped = frame.groupby("search_abs_runs")["dense_gamma_rmse"]
+        mean = grouped.mean()
+        sd = grouped.std()
+        axes[0].plot(
+            mean.index,
+            mean.to_numpy(),
+            marker="o",
+            linewidth=1.8,
+            markersize=4.8,
+            color=colors[method],
+            label=labels[method],
+        )
+        axes[0].fill_between(
+            mean.index,
+            mean.to_numpy() - sd.to_numpy(),
+            mean.to_numpy() + sd.to_numpy(),
+            color=colors[method],
+            alpha=0.14,
+            linewidth=0,
+        )
+    axes[0].set_xlabel("Search ABS runs", fontsize=10.5)
+    axes[0].set_ylabel(r"Held out $\Gamma_Y$ RMSE (min)", fontsize=10.5)
+    axes[0].set_title("(a) Interaction learning", fontsize=12)
+    axes[0].grid(True, color="#d8dadd", linewidth=0.7, alpha=0.72)
+    axes[0].legend(frameon=True, fontsize=8.5)
+
+    order = ["offline", "staged_adaptive", "pareto_adaptive"]
+    x = np.arange(len(order))
+    values = summary.loc[order, "hypervolume_mean"].to_numpy()
+    errors = summary.loc[order, "hypervolume_sd"].to_numpy()
+    axes[1].bar(
+        x,
+        values,
+        yerr=errors,
+        capsize=4,
+        color=[colors[method] for method in order],
+        edgecolor="white",
+        linewidth=0.8,
+    )
+    axes[1].set_xticks(x, [labels[method] for method in order], rotation=15, ha="right")
+    axes[1].set_ylabel("Verified hypervolume", fontsize=10.5)
+    axes[1].set_title("(b) Portfolio quality", fontsize=12)
+    axes[1].grid(True, axis="y", color="#d8dadd", linewidth=0.7, alpha=0.72)
+    axes[1].set_ylim(0, max(values + errors) * 1.18)
+    for position, value in zip(x, values, strict=True):
+        axes[1].text(position, value + 1.2, f"{value:.1f}", ha="center", fontsize=9)
+    for ax in axes:
+        ax.tick_params(labelsize=9.2)
+    fig.subplots_adjust(wspace=0.30, bottom=0.20)
+    _save(fig, output)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate final manuscript figures.")
     parser.add_argument("--results-dir", type=Path, required=True)
@@ -372,6 +463,19 @@ def main() -> None:
     temporal_profile_figure(
         args.results_dir / "temporal_profile" / "temporal_profile_summary.csv",
         args.output_dir / "fig4_reproducible.png",
+    )
+    adaptive_benchmark_figure(
+        _first_existing(
+            args.results_dir
+            / "staged_adaptive"
+            / "combined_dense_grid_learning_curve.csv",
+            args.results_dir / "staged_adaptive" / "dense_grid_learning_curve.csv",
+        ),
+        _first_existing(
+            args.results_dir / "staged_adaptive" / "combined_method_summary.csv",
+            args.results_dir / "staged_adaptive" / "method_summary.csv",
+        ),
+        args.output_dir / "fig12_interaction_aware.png",
     )
 
 
