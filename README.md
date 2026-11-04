@@ -3,8 +3,9 @@
 Reproducible agent based simulation and analysis code for stadium ingress under
 capacity constraints. The repository contains the complete model specification,
 matched interaction inference, XGBoost and quadratic surrogates, NSGA II search,
-frontier verification, fixed budget comparison, and scenario reoptimisation
-used for the reported computational experiments.
+frontier verification, staged interaction aware sampling, fixed budget
+comparison, and scenario reoptimisation used for the reported computational
+experiments.
 
 Associated study:
 
@@ -25,6 +26,7 @@ Associated study:
 | Capacity-dependent complementarity/substitution | Implemented | New release analysis module |
 | Design-of-experiments and XGBoost or quadratic surrogate | Implemented | New release analysis module |
 | Dependency-free NSGA-II and Pareto solutions | Implemented | New release analysis module |
+| Staged interaction and Pareto uncertainty acquisition | Implemented | New release adaptive module |
 | One-at-a-time sensitivity and stochastic robustness | Implemented | New release analysis module |
 
 The reference experiment uses the documented coordinate and route time inputs
