@@ -127,7 +127,11 @@ def framework_figure(output: Path) -> None:
     _save(fig, output)
 
 
-def interaction_figure(summary_path: Path, output: Path) -> None:
+def _interaction_panel(
+    ax: plt.Axes,
+    summary_path: Path,
+    title: str,
+) -> matplotlib.image.AxesImage:
     data = pd.read_csv(summary_path)
     demands = sorted(data["demand_scale"].unique())
     capacities = sorted(data["capacity_scale"].unique())
@@ -138,7 +142,6 @@ def interaction_figure(summary_path: Path, output: Path) -> None:
         index="demand_scale", columns="capacity_scale", values="classification"
     ).loc[demands, capacities]
 
-    fig, ax = plt.subplots(figsize=(8.3, 5.9))
     limit = float(np.abs(values.to_numpy()).max())
     image = ax.imshow(
         values.to_numpy(),
@@ -149,15 +152,22 @@ def interaction_figure(summary_path: Path, output: Path) -> None:
     )
     ax.set_xticks(range(len(capacities)), [f"{value:.2f}" for value in capacities])
     ax.set_yticks(range(len(demands)), [f"{value:.2f}" for value in demands])
-    ax.set_xlabel("Capacity scale", fontsize=12)
-    ax.set_ylabel("Demand scale", fontsize=12)
-    ax.set_title("Matched waiting time interaction by operating state", fontsize=14)
-    ax.tick_params(labelsize=11)
+    ax.set_xlabel("Capacity scale", fontsize=10.5)
+    ax.set_ylabel("Demand scale", fontsize=10.5)
+    ax.set_title(title, fontsize=12)
+    ax.tick_params(labelsize=9.5)
 
     for row in range(len(demands)):
         for column in range(len(capacities)):
             value = values.iloc[row, column]
-            label = "C" if classes.iloc[row, column] == "supported complementarity" else "S"
+            classification = classes.iloc[row, column]
+            label = (
+                "C"
+                if classification == "supported complementarity"
+                else "S"
+                if classification == "supported substitution"
+                else "I"
+            )
             text_color = "white" if abs(value) > limit * 0.48 else "black"
             ax.text(
                 column,
@@ -165,22 +175,33 @@ def interaction_figure(summary_path: Path, output: Path) -> None:
                 f"{value:.2f}\n{label}",
                 ha="center",
                 va="center",
-                fontsize=11,
+                fontsize=8.8,
                 fontweight="bold",
                 color=text_color,
             )
+    return image
 
-    colorbar = fig.colorbar(image, ax=ax, fraction=0.047, pad=0.035)
-    colorbar.set_label("Matched interaction contrast (min)", fontsize=11)
-    colorbar.ax.tick_params(labelsize=10)
-    ax.text(
-        0.0,
-        -0.20,
-        "C: 95% interval above zero     S: 95% interval below zero",
-        transform=ax.transAxes,
-        fontsize=10,
-        color="#3f4851",
+
+def interaction_figure(
+    summary_path: Path,
+    dense_summary_path: Path,
+    output: Path,
+) -> None:
+    fig, axes = plt.subplots(1, 2, figsize=(12.2, 5.2))
+    broad_image = _interaction_panel(axes[0], summary_path, "(a) Broad operating grid")
+    dense_image = _interaction_panel(
+        axes[1], dense_summary_path, "(b) Boundary focused grid"
     )
+    for ax, image in zip(axes, (broad_image, dense_image), strict=True):
+        colorbar = fig.colorbar(image, ax=ax, fraction=0.047, pad=0.035)
+        colorbar.ax.tick_params(labelsize=8.5)
+    fig.supxlabel(
+        "C: interval above zero     S: interval below zero     I: interval includes zero",
+        fontsize=9.5,
+        color="#3f4851",
+        y=0.01,
+    )
+    fig.subplots_adjust(bottom=0.16, wspace=0.28)
     _save(fig, output)
 
 
@@ -339,6 +360,7 @@ def main() -> None:
     framework_figure(args.output_dir / "fig1_reproducible.png")
     interaction_figure(
         interaction / "interaction_summary.csv",
+        args.results_dir / "interaction_dense" / "interaction_summary.csv",
         args.output_dir / "fig7_reproducible.png",
     )
     frontier_figure(

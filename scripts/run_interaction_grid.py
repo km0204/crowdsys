@@ -4,7 +4,10 @@ import argparse
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
+import matplotlib
 import pandas as pd
+
+matplotlib.use("Agg")
 
 from stadium_ingress.analysis import (
     capacity_interaction_replications,
