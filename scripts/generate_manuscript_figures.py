@@ -285,6 +285,50 @@ def frontier_figure(
     _save(fig, output)
 
 
+def temporal_profile_figure(summary_path: Path, output: Path) -> None:
+    data = pd.read_csv(summary_path)
+    colors = {"Baseline": "#3b6f9c", "Balanced compromise": "#d97932"}
+    fig, axes = plt.subplots(1, 2, figsize=(10.8, 4.2), sharex=True)
+    panels = [
+        ("arrivals_count", "Arrivals per minute", "(a) Arrival profile"),
+        ("total_queue_length", "Spectators", "(b) Total queue length"),
+    ]
+    for ax, (metric, ylabel, title) in zip(axes, panels, strict=True):
+        for policy in ("Baseline", "Balanced compromise"):
+            frame = data.loc[data["policy"] == policy].sort_values(
+                "minute_before_kickoff"
+            )
+            mean = frame[f"{metric}_mean"].to_numpy()
+            sd = frame[f"{metric}_sd"].to_numpy()
+            replications = frame["replications"].to_numpy()
+            half_width = 1.96 * sd / np.sqrt(replications)
+            minutes = frame["minute_before_kickoff"].to_numpy()
+            ax.plot(
+                minutes,
+                mean,
+                color=colors[policy],
+                linewidth=1.8,
+                label=policy,
+            )
+            ax.fill_between(
+                minutes,
+                mean - half_width,
+                mean + half_width,
+                color=colors[policy],
+                alpha=0.16,
+                linewidth=0,
+            )
+        ax.axvline(0, color="#4f5358", linewidth=0.9, linestyle=":")
+        ax.set_title(title, fontsize=12)
+        ax.set_xlabel("Minutes relative to kickoff", fontsize=10.5)
+        ax.set_ylabel(ylabel, fontsize=10.5)
+        ax.grid(True, color="#d8dadd", linewidth=0.7, alpha=0.72)
+        ax.tick_params(labelsize=9.5)
+        ax.set_xlim(data["minute_before_kickoff"].min(), 30)
+    axes[0].legend(frameon=True, fontsize=9, loc="upper left")
+    _save(fig, output)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate final manuscript figures.")
     parser.add_argument("--results-dir", type=Path, required=True)
@@ -302,6 +346,10 @@ def main() -> None:
         portfolio / "frontier_verification.csv",
         portfolio / "representative_policies.csv",
         args.output_dir / "fig10_reproducible.png",
+    )
+    temporal_profile_figure(
+        args.results_dir / "temporal_profile" / "temporal_profile_summary.csv",
+        args.output_dir / "fig4_reproducible.png",
     )
 
 
