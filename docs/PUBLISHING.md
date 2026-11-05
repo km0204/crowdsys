@@ -1,50 +1,32 @@
-# Publishing to GitHub
+# Repository release checks
 
-## 1. Complete the release metadata
+Use the following checks before creating a release or manuscript archive.
 
-Before publishing, complete `PUBLIC_RELEASE_CHECKLIST.md`. In particular, add a
-license, final citation metadata, the OSM redistribution decision, and the
-correct GitHub account name.
-
-## 2. Create the remote repository
-
-Create an empty GitHub repository named `crowdsys`. Do not add
-a README, `.gitignore`, or license from the GitHub interface because those files
-are managed locally.
-
-## 3. Review and commit locally
+## Code and tests
 
 ```bash
-git status
-git add .
-git commit -m "Initial public release"
+python -m pip install -e ".[dev,analysis]"
+pytest
+ruff check .
 ```
 
-## 4. Connect and push
+Confirm that the documented reference commands run with
+`configs/reference_calibration.json` and that generated tables agree with
+`docs/MANUSCRIPT_RESULTS.md`.
 
-HTTPS:
+## Research materials
 
-```bash
-git remote add origin https://github.com/km0204/crowdsys.git
-git push -u origin main
-```
+- Record the configuration file, seed ranges, and package version.
+- Keep training, external assessment, and verification seeds separate.
+- Regenerate manuscript figures with `scripts/generate_manuscript_figures.py`.
+- Check that numerical claims can be traced to CSV or JSON output.
+- Do not commit credentials, local paths, restricted data, or undocumented OSM
+  extracts.
 
-SSH:
+## GitHub release
 
-```bash
-git remote add origin git@github.com:km0204/crowdsys.git
-git push -u origin main
-```
-
-## 5. Verify the public repository
-
-- Confirm that the documented smoke runs and all tests pass.
-- Confirm that the GitHub Actions test matrix passes.
-- Check the repository for local paths, credentials, restricted data, and
-  unpublished personal information.
-- Create a version tag after verification:
-
-```bash
-git tag -a v0.2.0 -m "Intervention portfolio release"
-git push origin v0.2.0
-```
+- Review the staged diff and commit only files needed for the release.
+- Push the tested commit to `main`.
+- Confirm that the GitHub Actions workflow passes.
+- Create a version tag only after the remote commit and documentation have been
+  checked.

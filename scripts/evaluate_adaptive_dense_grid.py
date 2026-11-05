@@ -146,15 +146,21 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(args.output, index=False)
     if args.checkpoint_output is not None:
-        selected_indices = result.groupby(["method", "algorithm_seed"])[
-            "cv_gamma_rmse"
-        ].idxmin()
+        selected_indices: list[int] = []
+        for (method, _), frame in result.groupby(["method", "algorithm_seed"]):
+            if method == "staged_adaptive":
+                checkpoint = frame[frame["iteration"] == 1]
+                if checkpoint.empty:
+                    raise SystemExit("staged adaptive results do not contain iteration 1")
+                selected_indices.append(int(checkpoint.index[0]))
+            else:
+                selected_indices.append(int(frame["cv_gamma_rmse"].idxmin()))
         checkpoints = result.loc[selected_indices].sort_values(
             ["method", "algorithm_seed"], ignore_index=True
         )
         args.checkpoint_output.parent.mkdir(parents=True, exist_ok=True)
         checkpoints.to_csv(args.checkpoint_output, index=False)
-        print("\nCross validated interaction checkpoints")
+        print("\nInteraction checkpoint diagnostics")
         print(
             checkpoints.groupby("method")
             .agg(

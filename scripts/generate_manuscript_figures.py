@@ -555,21 +555,21 @@ def main() -> None:
     args = parser.parse_args()
     interaction = args.results_dir / "interaction"
     portfolio = args.results_dir / "portfolio_refined"
-    framework_figure(args.output_dir / "fig1_reproducible.png")
+    framework_figure(args.output_dir / "fig1.png")
     interaction_figure(
         interaction / "interaction_summary.csv",
         args.results_dir / "interaction_dense" / "interaction_summary.csv",
-        args.output_dir / "fig7_reproducible.png",
+        args.output_dir / "fig2.png",
     )
     frontier_figure(
         portfolio / "pareto_solutions.csv",
         portfolio / "frontier_verification.csv",
         portfolio / "representative_policies.csv",
-        args.output_dir / "fig10_reproducible.png",
+        args.output_dir / "fig4.png",
     )
     temporal_profile_figure(
         args.results_dir / "temporal_profile" / "temporal_profile_summary.csv",
-        args.output_dir / "fig4_reproducible.png",
+        args.output_dir / "fig5.png",
     )
     adaptive_benchmark_figure(
         _first_existing(
@@ -582,7 +582,7 @@ def main() -> None:
             args.results_dir / "staged_adaptive" / "combined_method_summary.csv",
             args.results_dir / "staged_adaptive" / "method_summary.csv",
         ),
-        args.output_dir / "fig12_interaction_aware.png",
+        args.output_dir / "fig3.png",
     )
 
 

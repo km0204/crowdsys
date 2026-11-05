@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0
+
+- Added contextual interaction ensembles and staged interaction aware sampling.
+- Added a held out boundary grid with design level cross validation diagnostics.
+- Added equal budget comparisons with offline, Pareto adaptive, and direct ABS
+  NSGA II methods.
+- Added independent frontier verification under a common hypervolume reference.
+- Aligned experiment accounting, figure names, and documentation with the
+  reported computational study.
+
 ## 0.3.0
 
 - Added seed-level matched interaction contrasts and 95% confidence intervals.

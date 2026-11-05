@@ -1,33 +1,31 @@
 # Stadium Ingress Intervention Portfolio Simulation
 
-Reproducible agent based simulation and analysis code for stadium ingress under
-capacity constraints. The repository contains the complete model specification,
-matched interaction inference, XGBoost and quadratic surrogates, NSGA II search,
+Reference implementation and experiment drivers for stadium ingress management
+under capacity constraints. The repository includes the agent based simulation,
+matched interaction inference, contextual XGBoost ensembles, NSGA II search,
 frontier verification, staged interaction aware sampling, fixed budget
-comparison, and scenario reoptimisation used for the reported computational
-experiments.
+comparisons, and scenario specific search used in the reported experiments.
 
 Associated study:
 
-> *Optimising Behaviourally Responsive Intervention Portfolios in
-> Capacity-Constrained Crowd Systems: A Surrogate-Assisted Simulation
-> Optimization Approach*
+> *Interaction Aware Sequential Surrogate Optimization for Capacity Constrained
+> Intervention Portfolios: An Application to Stadium Ingress Management*
 
 ## What is included
 
 | Component | Status | Provenance |
 |---|---|---|
-| Baseline arrivals, six-station choice, FIFO queues, walking time | Implemented | Cleaned from the supplied appendix |
-| Shuttle mode, queue, fleet/headway capacity | Implemented | Cleaned from the supplied appendix |
-| Pre-event participation, zone choice, dwell time | Implemented | Cleaned from the supplied appendix |
-| Shuttle/event awareness and behavioural adoption | Implemented | Cleaned from the supplied appendix |
-| Combined spatial and temporal portfolios | Implemented | Cleaned and modularised from the appendix |
-| OSM coordinate routes, position logs, pedestrian density figure | Implemented when OSM JSON is supplied | Appendix logic, safe fallback added |
-| Capacity-dependent complementarity/substitution | Implemented | New release analysis module |
-| Design-of-experiments and XGBoost or quadratic surrogate | Implemented | New release analysis module |
-| Dependency-free NSGA-II and Pareto solutions | Implemented | New release analysis module |
-| Staged interaction and Pareto uncertainty acquisition | Implemented | New release adaptive module |
-| One-at-a-time sensitivity and stochastic robustness | Implemented | New release analysis module |
+| Baseline arrivals, six-station choice, FIFO queues, walking time | Implemented | Model specification and appendix code |
+| Shuttle mode, queue, fleet and headway capacity | Implemented | Model specification and appendix code |
+| Pre-event participation, zone choice, dwell time | Implemented | Model specification and appendix code |
+| Shuttle and event awareness with behavioural adoption | Implemented | Model specification and appendix code |
+| Combined spatial and temporal portfolios | Implemented | Model specification and appendix code |
+| OSM coordinate routes, position logs, pedestrian density figure | Available with route JSON inputs | Model specification and documented fallback |
+| Capacity dependent complementarity and substitution | Implemented | Analysis module |
+| Experimental design and XGBoost or quadratic surrogate | Implemented | Analysis module |
+| NSGA II and Pareto solution verification | Implemented | Optimisation and validation modules |
+| Staged interaction and Pareto uncertainty acquisition | Implemented | Adaptive module |
+| Sensitivity and stochastic robustness analysis | Implemented | Analysis module |
 
 The reference experiment uses the documented coordinate and route time inputs
 in `params/reference_network_estimates`. These files are model inputs and are
@@ -175,11 +173,14 @@ The direct comparator is the nondominated subset of those shared ABS design
 evaluations. It is a fixed-budget direct screening baseline, not a global direct
 simulation optimiser.
 
-The final experimental protocol, numerical results, seed allocation, and output
-files are summarized in
-[`docs/MANUSCRIPT_RESULTS.md`](docs/MANUSCRIPT_RESULTS.md). Earlier audit files
-remain in `docs/` to preserve the development history and distinguish the final
-specification from preliminary reconciliation attempts.
+The separate direct ABS NSGA II benchmark uses the same 300 run search budget
+as each initial surrogate. Its command and verification protocol are given in
+[`docs/MANUSCRIPT_RESULTS.md`](docs/MANUSCRIPT_RESULTS.md).
+
+The reported experimental protocol, numerical results, seed allocation, and
+output files are summarized in
+[`docs/MANUSCRIPT_RESULTS.md`](docs/MANUSCRIPT_RESULTS.md). Audit notes in
+`docs/` record differences between preliminary and reported specifications.
 
 ## Sensitivity and robustness
 
@@ -220,6 +221,7 @@ simulation. Coordinate outputs are simply disabled when routes are absent.
 configs/                    scenario definitions
 params/                     OSM input schemas; no validated OSM data included
 src/stadium_ingress/        simulation and analysis package
+scripts/                    experiment and figure generation scripts
 tests/                      deterministic and policy-analysis tests
 docs/                       model, data, analysis, and reproducibility notes
 examples/                   reference baseline outputs
@@ -232,8 +234,8 @@ examples/                   reference baseline outputs
 - `docs/ANALYSIS.md` defines interaction, surrogate, Pareto, sensitivity, and
   robustness methods.
 - `docs/REPRODUCIBILITY.md` records the seed policy and verification steps.
-- `PUBLIC_RELEASE_CHECKLIST.md` lists the author decisions required before the
-  repository is made public.
+- `docs/MANUSCRIPT_RESULTS.md` records the commands and numerical summaries for
+  the reported experiment suite.
 
 ## Tests
 
